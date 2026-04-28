@@ -556,6 +556,11 @@
       .section { padding: 16px; }
       .grid-2, .grid-2-equal, .grid-3, .grid-4, .summary-grid, .chart-grid {
         grid-template-columns: 1fr;
+        gap: 16px;
+      }
+      .grid-2 > *, .grid-2-equal > *, .grid-3 > *, .grid-4 > *, .summary-grid > *, .chart-grid > * {
+        width: 100%;
+        min-width: 0;
       }
       .filters,
       .form-actions,
@@ -641,7 +646,8 @@
         overflow-x: auto;
       }
       .table-wrap table {
-        min-width: 520px;
+        min-width: 100%;
+        width: 100%;
       }
       .table-wrap th,
       .table-wrap td {
