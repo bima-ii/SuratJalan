@@ -592,6 +592,37 @@
       .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
       .items-table .input,
       .items-table .select { min-width: 0; }
+      .items-table,
+      .items-table thead,
+      .items-table tbody,
+      .items-table tr,
+      .items-table th,
+      .items-table td {
+        display: block;
+        width: 100%;
+      }
+      .items-table thead { display: none; }
+      .items-table tbody {
+        display: grid;
+        gap: 12px;
+      }
+      .items-table tr {
+        padding: 12px;
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        background: white;
+        box-shadow: 0 10px 26px rgba(15,23,42,0.05);
+      }
+      .items-table td {
+        padding: 0;
+        border-bottom: 0;
+        margin-top: 10px;
+      }
+      .items-table td:first-child { margin-top: 0; }
+      .items-table .remove-btn {
+        width: 100%;
+        height: 44px;
+      }
       .modal { padding: 12px; }
       .modal-card,
       .modal-card.narrow { width: 100%; max-height: 94vh; }
