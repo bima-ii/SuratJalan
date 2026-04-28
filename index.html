@@ -1,0 +1,2043 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SuratJalan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    :root {
+      --primary: #1e40af;
+      --success: #059669;
+      --warning: #d97706;
+      --danger: #dc2626;
+      --sidebar: #1e293b;
+      --bg: #f1f5f9;
+      --surface: #ffffff;
+      --surface-2: #e2e8f0;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #dbe3ee;
+      --shadow: 0 18px 50px rgba(15, 23, 42, 0.10);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(30, 64, 175, 0.08), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(5, 150, 105, 0.08), transparent 24%),
+        var(--bg);
+      min-height: 100vh;
+    }
+
+    a { color: inherit; }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+
+    .app-shell { min-height: 100vh; display: flex; }
+    .sidebar {
+      width: 280px;
+      background: linear-gradient(180deg, #0f172a 0%, var(--sidebar) 100%);
+      color: #e2e8f0;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      box-shadow: inset -1px 0 0 rgba(255,255,255,0.05);
+    }
+
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 10px 18px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .brand-logo {
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.10);
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      flex: 0 0 auto;
+    }
+
+    .brand-logo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .brand-title { font-size: 18px; font-weight: 800; line-height: 1.2; }
+    .brand-subtitle { font-size: 12px; color: rgba(226,232,240,0.72); margin-top: 3px; }
+
+    .nav-group { display: grid; gap: 8px; }
+    .nav-label {
+      font-size: 11px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: rgba(226,232,240,0.55);
+      margin: 6px 10px 2px;
+    }
+
+    .nav-btn {
+      border: 0;
+      background: transparent;
+      color: #e2e8f0;
+      padding: 13px 14px;
+      border-radius: 14px;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      transition: .18s ease;
+    }
+
+    .nav-btn span { display: inline-flex; align-items: center; gap: 10px; }
+    .nav-btn:hover, .nav-btn.active { background: rgba(255,255,255,0.10); }
+    .sidebar-footer {
+      margin-top: auto;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      font-size: 12px;
+      color: rgba(226,232,240,0.72);
+      line-height: 1.7;
+    }
+
+    .main { flex: 1; min-width: 0; }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+      padding: 24px 28px 8px;
+    }
+    .topbar h1 { margin: 0; font-size: 28px; line-height: 1.15; }
+    .topbar p { margin: 7px 0 0; color: var(--muted); }
+    .user-chip {
+      background: rgba(255,255,255,0.85);
+      border: 1px solid rgba(219,227,238,0.95);
+      border-radius: 999px;
+      padding: 10px 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: var(--shadow);
+      font-size: 13px;
+      color: var(--text);
+      white-space: nowrap;
+    }
+    .avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--primary), #60a5fa);
+      color: white;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      font-size: 12px;
+      flex: 0 0 auto;
+    }
+
+    .content { padding: 8px 28px 32px; }
+    .card {
+      background: rgba(255,255,255,0.92);
+      border: 1px solid rgba(219,227,238,0.95);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+    }
+    .section { padding: 22px; }
+    .grid-2 { display: grid; grid-template-columns: 1.15fr .85fr; gap: 20px; align-items: start; }
+    .grid-2-equal { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 18px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 14px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 14px; }
+    .stack { display: grid; gap: 14px; }
+    .muted { color: var(--muted); }
+    .small { font-size: 12px; }
+    .title-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 14px; }
+    .title-row h2, .title-row h3 { margin: 0; }
+    .title-row h2 { font-size: 20px; }
+    .title-row h3 { font-size: 16px; }
+
+    .btn {
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 16px;
+      font-weight: 700;
+      transition: .18s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      line-height: 1;
+    }
+    .btn:disabled { opacity: .6; cursor: not-allowed; }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-success { background: var(--success); color: white; }
+    .btn-warning { background: var(--warning); color: white; }
+    .btn-danger { background: var(--danger); color: white; }
+    .btn-soft { background: #eaf1ff; color: var(--primary); }
+    .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .btn:hover { transform: translateY(-1px); }
+
+    .input, .select, .textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      background: white;
+      border-radius: 14px;
+      padding: 12px 14px;
+      color: var(--text);
+      outline: none;
+      transition: .18s ease;
+    }
+    .textarea { min-height: 110px; resize: vertical; }
+    .input:focus, .select:focus, .textarea:focus { border-color: #9bb6ff; box-shadow: 0 0 0 4px rgba(30, 64, 175, 0.08); }
+    .field { display: grid; gap: 8px; }
+    .label { font-size: 13px; font-weight: 700; }
+    .help { font-size: 12px; color: var(--muted); }
+    .error-text { color: var(--danger); font-size: 12px; margin-top: 8px; min-height: 18px; }
+    .error-inline { color: var(--danger); font-size: 13px; margin-top: 10px; }
+
+    .login-wrap { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
+    .login-card {
+      width: min(460px, 100%);
+      padding: 28px;
+      border-radius: 24px;
+      background: rgba(255,255,255,0.92);
+      border: 1px solid rgba(219,227,238,0.95);
+      box-shadow: var(--shadow);
+    }
+    .login-head { display: grid; justify-items: center; text-align: center; gap: 14px; margin-bottom: 22px; }
+    .login-brand-logo { width: 72px; height: 72px; border-radius: 22px; overflow: hidden; background: #e2e8f0; }
+    .login-brand-logo img { width: 100%; height: 100%; object-fit: cover; }
+    .login-head h1 { margin: 0; font-size: 28px; }
+    .login-head p { margin: 0; color: var(--muted); line-height: 1.6; }
+    .login-actions { display: grid; gap: 12px; margin-top: 18px; }
+    .login-foot { margin-top: 18px; font-size: 12px; color: var(--muted); line-height: 1.7; text-align: center; }
+
+    .stat {
+      padding: 16px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,250,252,0.98));
+      border: 1px solid var(--border);
+    }
+    .stat .k { font-size: 12px; color: var(--muted); margin-bottom: 7px; }
+    .stat .v { font-size: 26px; font-weight: 800; line-height: 1.1; }
+    .stat.primary { border-color: rgba(30,64,175,0.22); }
+    .stat.success { border-color: rgba(5,150,105,0.22); }
+    .stat.warning { border-color: rgba(217,119,6,0.22); }
+    .stat.danger { border-color: rgba(220,38,38,0.22); }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: end;
+    }
+    .filters .field { min-width: 160px; flex: 1 1 160px; }
+
+    .cards { display: grid; gap: 14px; }
+    .sj-card {
+      padding: 18px;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: white;
+      display: grid;
+      gap: 12px;
+      box-shadow: 0 10px 28px rgba(15,23,42,0.05);
+    }
+    .sj-card-head { display: flex; justify-content: space-between; gap: 12px; align-items: start; }
+    .sj-card-title { font-weight: 800; font-size: 16px; line-height: 1.4; }
+    .truncate-2 {
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      overflow: hidden;
+    }
+    .meta { display: grid; gap: 6px; font-size: 13px; color: var(--muted); }
+    .meta strong { color: var(--text); }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 800;
+      padding: 7px 10px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .badge.gray { background: #e2e8f0; color: #334155; }
+    .badge.blue { background: #dbeafe; color: #1d4ed8; }
+    .badge.green { background: #dcfce7; color: #15803d; }
+    .badge.red { background: #fee2e2; color: #b91c1c; }
+    .badge.yellow { background: #fef3c7; color: #92400e; }
+
+    .table-wrap { overflow: auto; border-radius: 18px; border: 1px solid var(--border); background: white; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 12px 14px; border-bottom: 1px solid #edf2f7; text-align: left; vertical-align: top; }
+    th { position: sticky; top: 0; background: #f8fafc; z-index: 1; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: #475569; }
+    tr:last-child td { border-bottom: 0; }
+
+    .form-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .item-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .items-table td { vertical-align: middle; }
+    .items-table .input, .items-table .select { min-width: 120px; }
+    .remove-btn {
+      border: 0;
+      background: #fee2e2;
+      color: var(--danger);
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      font-size: 20px;
+      font-weight: 800;
+    }
+
+    .summary-grid { display: grid; gap: 14px; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .summary-grid.admin { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .summary-grid .stat { min-height: 106px; }
+    .chart-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: 16px; align-items: stretch; }
+    .chart-box { padding: 18px; border-radius: 18px; border: 1px solid var(--border); background: white; }
+
+    .driver-card {
+      padding: 16px;
+      border-radius: 18px;
+      background: white;
+      border: 1px solid var(--border);
+      display: grid;
+      gap: 12px;
+      box-shadow: 0 10px 26px rgba(15,23,42,0.05);
+    }
+    .driver-card .top { display: flex; justify-content: space-between; gap: 12px; align-items: start; }
+    .driver-card .name { font-size: 18px; font-weight: 800; line-height: 1.25; }
+    .driver-card .address { font-size: 14px; color: var(--muted); line-height: 1.65; white-space: pre-wrap; }
+    .driver-card .items { display: grid; gap: 8px; padding-top: 4px; }
+    .item-pill {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-size: 13px;
+    }
+    .driver-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+
+    .panel {
+      position: fixed;
+      inset: auto 0 0 0;
+      background: white;
+      border-radius: 22px 22px 0 0;
+      box-shadow: 0 -12px 40px rgba(15,23,42,0.18);
+      max-height: 88vh;
+      overflow: auto;
+      transform: translateY(105%);
+      transition: transform .24s ease;
+      z-index: 60;
+    }
+    .panel.open { transform: translateY(0); }
+    .panel-head {
+      padding: 16px 18px;
+      border-bottom: 1px solid #edf2f7;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+    }
+    .panel-body { padding: 18px; display: grid; gap: 16px; }
+    .segmented { display: flex; gap: 8px; background: #e2e8f0; padding: 6px; border-radius: 16px; width: fit-content; }
+    .segmented button {
+      border: 0;
+      padding: 10px 14px;
+      border-radius: 12px;
+      background: transparent;
+      font-weight: 800;
+      color: #475569;
+    }
+    .segmented button.active { background: white; color: var(--text); box-shadow: 0 8px 20px rgba(15,23,42,0.12); }
+    .camera-box, .preview-box {
+      border: 1px dashed #cbd5e1;
+      border-radius: 18px;
+      background: #f8fafc;
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+    }
+    .camera-box video, .preview-box img {
+      width: 100%;
+      border-radius: 14px;
+      background: #0f172a;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      background: rgba(15,23,42,0.60);
+      z-index: 70;
+    }
+    .modal.open { display: flex; }
+    .modal-card {
+      width: min(1120px, 100%);
+      max-height: 92vh;
+      overflow: auto;
+      background: white;
+      border-radius: 22px;
+      box-shadow: 0 24px 70px rgba(15,23,42,0.26);
+    }
+    .modal-card.narrow { width: min(760px, 100%); }
+    .modal-head {
+      padding: 16px 18px;
+      border-bottom: 1px solid #edf2f7;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+    }
+    .modal-body { padding: 18px; }
+
+    .print-sheet {
+      width: 148mm;
+      min-height: 210mm;
+      background: white;
+      color: #111827;
+      margin: 0 auto;
+      padding: 10mm;
+      font-size: 11px;
+      line-height: 1.45;
+    }
+    .print-header { display: grid; grid-template-columns: 42px 1fr; gap: 12px; align-items: center; padding-bottom: 8px; border-bottom: 1px solid #111827; }
+    .print-header .logo { width: 42px; height: 42px; border-radius: 10px; overflow: hidden; background: #e5e7eb; }
+    .print-header .logo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .print-title { text-align: center; padding: 10px 0 6px; border-bottom: 1px solid #111827; }
+    .print-title h2 { margin: 0; font-size: 18px; letter-spacing: .06em; }
+    .print-title .small { margin-top: 4px; }
+    .print-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px 0; border-bottom: 1px solid #111827; }
+    .print-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    .print-table th, .print-table td { border: 1px solid #111827; padding: 6px 7px; font-size: 10px; vertical-align: top; }
+    .print-sign { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 28px; }
+    .sign-box { text-align: center; }
+    .sign-line { height: 58px; }
+    .sign-underline { margin-top: 10px; border-top: 1px solid #111827; padding-top: 6px; font-weight: 700; }
+
+    .stepper { display: flex; gap: 10px; flex-wrap: wrap; }
+    .step { flex: 1 1 140px; min-width: 140px; border-radius: 16px; border: 1px solid #e2e8f0; padding: 12px; background: #f8fafc; position: relative; }
+    .step.active { border-color: rgba(30,64,175,0.35); background: #eef4ff; }
+    .step.done { border-color: rgba(5,150,105,0.35); background: #ecfdf5; }
+    .step .t { font-size: 13px; font-weight: 800; }
+    .step .d { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15,23,42,0.48);
+      z-index: 80;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .overlay.open { display: flex; }
+    .overlay-box {
+      background: white;
+      border-radius: 18px;
+      padding: 18px 20px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      box-shadow: 0 24px 70px rgba(15,23,42,0.22);
+      min-width: 260px;
+    }
+    .spinner {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 3px solid #dbeafe;
+      border-top-color: var(--primary);
+      animation: spin .8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .toast-wrap { position: fixed; right: 18px; bottom: 18px; z-index: 90; display: grid; gap: 10px; }
+    .toast {
+      min-width: 280px;
+      max-width: 420px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      color: white;
+      box-shadow: 0 18px 40px rgba(15,23,42,0.2);
+      transform: translateY(8px);
+      opacity: 0;
+      animation: toastIn .18s ease forwards;
+    }
+    .toast.info { background: #1d4ed8; }
+    .toast.success { background: var(--success); }
+    .toast.error { background: var(--danger); }
+    .toast .t { font-weight: 800; margin-bottom: 4px; }
+    .toast .m { font-size: 13px; line-height: 1.5; }
+    @keyframes toastIn { to { transform: translateY(0); opacity: 1; } }
+
+    .empty-state {
+      padding: 28px;
+      border-radius: 18px;
+      border: 1px dashed #cbd5e1;
+      background: rgba(248,250,252,0.9);
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .hide { display: none !important; }
+    .print-only { display: none; }
+
+    @media (max-width: 1080px) {
+      .sidebar { width: 250px; }
+      .grid-2, .chart-grid { grid-template-columns: 1fr; }
+      .grid-4, .summary-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .topbar { padding-inline: 18px; }
+      .content { padding-inline: 18px; }
+    }
+
+    @media (max-width: 860px) {
+      .app-shell { display: block; }
+      .sidebar {
+        position: fixed;
+        inset: 0 auto 0 0;
+        transform: translateX(-105%);
+        transition: transform .22s ease;
+        z-index: 50;
+        height: 100vh;
+      }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; }
+      .topbar { padding-top: 18px; }
+      .menu-toggle { display: inline-flex !important; }
+      .grid-2-equal, .grid-3, .grid-4, .summary-grid { grid-template-columns: 1fr; }
+      .section { padding: 18px; }
+    }
+
+    @media print {
+      @page { size: A5 portrait; margin: 0; }
+      body { background: white !important; }
+      body * { visibility: hidden !important; }
+      .modal.printing, .modal.printing * { visibility: visible !important; }
+      .modal.printing { display: block !important; position: fixed; inset: 0; background: white; }
+      .modal.printing .modal-head, .modal.printing .modal-body > *:not(.print-sheet) { display: none !important; }
+      .modal.printing .print-only, .modal.printing .print-only * { display: block !important; }
+      .print-sheet { width: 100% !important; min-height: auto !important; margin: 0 !important; box-shadow: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div id="loginView" class="login-wrap">
+    <div class="login-card">
+      <div class="login-head">
+        <div class="login-brand-logo"><img id="loginLogo" alt="Logo perusahaan" /></div>
+        <div>
+          <h1 id="loginCompanyName">SuratJalan</h1>
+          <p id="loginCompanyDesc">Backend surat jalan multi-user untuk Admin dan Driver.</p>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="label" for="loginId">ID</label>
+        <input id="loginId" class="input" autocomplete="username" placeholder="Masukkan ID" />
+      </div>
+      <div class="field" style="margin-top:12px;">
+        <label class="label" for="loginPassword">Password</label>
+        <input id="loginPassword" class="input" type="password" autocomplete="current-password" placeholder="Masukkan password" />
+      </div>
+      <div id="loginError" class="error-inline"></div>
+      <div class="login-actions">
+        <button id="loginBtn" class="btn btn-primary" type="button">Masuk</button>
+        <button id="reloadConfigBtn" class="btn btn-ghost" type="button">Muat ulang konfigurasi</button>
+      </div>
+      <div class="login-foot">
+        Login multi-user untuk Admin dan Driver. Jika URL Apps Script belum diisi, aplikasi akan menampilkan pesan error.
+      </div>
+    </div>
+  </div>
+
+  <div id="appView" class="app-shell hide">
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-logo"><img id="sidebarLogo" alt="Logo perusahaan" /></div>
+        <div>
+          <div id="sidebarCompanyName" class="brand-title">SuratJalan</div>
+          <div id="sidebarCompanySub" class="brand-subtitle">Frontend Netlify</div>
+        </div>
+      </div>
+      <div id="adminNav" class="nav-group hide">
+        <div class="nav-label">Admin</div>
+        <button class="nav-btn active" data-view="admin-create"><span>Buat SJ</span><span>›</span></button>
+        <button class="nav-btn" data-view="admin-list"><span>Daftar SJ</span><span>›</span></button>
+        <button class="nav-btn" data-view="admin-rekap"><span>Rekap</span><span>›</span></button>
+      </div>
+      <div id="driverNav" class="nav-group hide">
+        <div class="nav-label">Driver</div>
+        <button class="nav-btn active" data-view="driver-shipments"><span>Pengiriman Saya</span><span>›</span></button>
+        <button class="nav-btn" data-view="driver-history"><span>Riwayat</span><span>›</span></button>
+      </div>
+      <button id="logoutBtn" class="nav-btn" style="margin-top:10px;background:rgba(220,38,38,0.12);color:#fecaca;justify-content:flex-start;">
+        <span>Logout</span>
+      </button>
+      <div class="sidebar-footer">
+        <div id="sessionText"></div>
+        <div style="margin-top:10px;">Timezone: Asia/Jakarta</div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div>
+          <button id="menuToggle" class="btn btn-ghost menu-toggle hide" type="button" style="margin-bottom:10px;">Menu</button>
+          <h1 id="pageTitle">Dashboard</h1>
+          <p id="pageSubtitle">Kelola surat jalan dan pengiriman.</p>
+        </div>
+        <div class="user-chip">
+          <div class="avatar" id="userAvatar">SJ</div>
+          <div>
+            <div id="userName">-</div>
+            <div id="userRole" class="small muted">-</div>
+          </div>
+        </div>
+      </div>
+      <div class="content">
+        <section id="adminCreateView" class="card section hide">
+          <div class="title-row">
+            <div>
+              <h2>Buat Surat Jalan</h2>
+              <div class="muted small">Form admin 2 kolom dengan item dinamis dan preview print otomatis.</div>
+            </div>
+            <div class="form-actions">
+              <button id="refreshDriversBtn" class="btn btn-soft" type="button">Muat Driver</button>
+            </div>
+          </div>
+          <div class="grid-2">
+            <div class="stack">
+              <div class="field">
+                <label class="label">Nama Penerima</label>
+                <input id="sjNamaPenerima" class="input" placeholder="Toko Maju Jaya" />
+              </div>
+              <div class="field">
+                <label class="label">Alamat Tujuan</label>
+                <textarea id="sjAlamatTujuan" class="textarea" placeholder="Alamat lengkap tujuan"></textarea>
+              </div>
+              <div class="grid-2-equal">
+                <div class="field">
+                  <label class="label">No HP Penerima</label>
+                  <input id="sjNoHp" class="input" placeholder="08123456789" />
+                </div>
+                <div class="field">
+                  <label class="label">Assign Driver</label>
+                  <select id="sjDriverId" class="select"></select>
+                </div>
+              </div>
+              <div class="field">
+                <label class="label">Keterangan</label>
+                <textarea id="sjKeterangan" class="textarea" placeholder="Catatan tambahan opsional"></textarea>
+              </div>
+            </div>
+            <div>
+              <div class="item-toolbar">
+                <div>
+                  <div class="label">Item Barang</div>
+                  <div class="help">Minimal 1 item. Bisa tambah baris sebanyak yang diperlukan.</div>
+                </div>
+                <button id="addItemBtn" class="btn btn-primary" type="button">Tambah Item</button>
+              </div>
+              <div class="table-wrap">
+                <table class="items-table">
+                  <thead>
+                    <tr>
+                      <th>Nama Barang</th>
+                      <th>Satuan</th>
+                      <th>Jumlah</th>
+                      <th>Keterangan</th>
+                      <th>Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="itemsBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:18px;" class="form-actions">
+            <button id="createSjBtn" class="btn btn-success" type="button">Buat Surat Jalan</button>
+            <div id="createSjError" class="error-text"></div>
+          </div>
+        </section>
+
+        <section id="adminListView" class="card section hide">
+          <div class="title-row">
+            <div>
+              <h2>Daftar Surat Jalan</h2>
+              <div class="muted small">Filter status, tanggal, dan driver. Tampil dalam bentuk kartu agar nyaman di mobile.</div>
+            </div>
+            <button id="reloadListBtn" class="btn btn-soft" type="button">Reload</button>
+          </div>
+          <div class="filters" style="margin-bottom:16px;">
+            <div class="field"><label class="label">Status</label><select id="filterStatusAdmin" class="select"><option value="">Semua</option><option>Dibuat</option><option>Dikirim</option><option>Terkirim</option><option>Gagal</option></select></div>
+            <div class="field"><label class="label">Tanggal Dari</label><input id="filterFromAdmin" type="date" class="input" /></div>
+            <div class="field"><label class="label">Tanggal Sampai</label><input id="filterToAdmin" type="date" class="input" /></div>
+            <div class="field"><label class="label">Driver</label><select id="filterDriverAdmin" class="select"><option value="">Semua Driver</option></select></div>
+            <div class="field" style="flex:0 0 auto; min-width:160px;"><label class="label">&nbsp;</label><button id="applyFilterAdmin" class="btn btn-primary" type="button">Terapkan</button></div>
+          </div>
+          <div id="adminListError" class="error-text"></div>
+          <div id="adminListCards" class="cards"></div>
+        </section>
+
+        <section id="adminRekapView" class="card section hide">
+          <div class="title-row">
+            <div>
+              <h2>Rekap & Laporan</h2>
+              <div class="muted small">Ringkasan per periode, per driver, grafik donut, dan export Excel.</div>
+            </div>
+            <div class="form-actions">
+              <button id="exportExcelBtn" class="btn btn-success" type="button">Export Excel</button>
+            </div>
+          </div>
+          <div class="filters" style="margin-bottom:16px;">
+            <div class="field"><label class="label">Tanggal Dari</label><input id="rekapFrom" type="date" class="input" /></div>
+            <div class="field"><label class="label">Tanggal Sampai</label><input id="rekapTo" type="date" class="input" /></div>
+            <div class="field"><label class="label">Driver</label><select id="rekapDriver" class="select"><option value="">Semua Driver</option></select></div>
+            <div class="field" style="flex:0 0 auto; min-width:160px;"><label class="label">&nbsp;</label><button id="applyRekapBtn" class="btn btn-primary" type="button">Terapkan</button></div>
+          </div>
+          <div class="summary-grid admin" style="margin-bottom:16px;">
+            <div class="stat primary"><div class="k">Total SJ</div><div class="v" id="sumTotal">0</div></div>
+            <div class="stat success"><div class="k">Terkirim</div><div class="v" id="sumTerkirim">0</div></div>
+            <div class="stat danger"><div class="k">Gagal</div><div class="v" id="sumGagal">0</div></div>
+            <div class="stat warning"><div class="k">Proses</div><div class="v" id="sumProses">0</div></div>
+          </div>
+          <div class="chart-grid" style="margin-bottom:16px;">
+            <div class="chart-box"><canvas id="rekapChart" height="220"></canvas></div>
+            <div class="chart-box">
+              <div class="title-row"><h3>Tabel Rekap per Driver</h3></div>
+              <div class="table-wrap" style="max-height:340px;">
+                <table>
+                  <thead><tr><th>Nama</th><th>Total</th><th>Terkirim</th><th>Gagal</th><th>Proses</th><th>Success Rate</th></tr></thead>
+                  <tbody id="rekapTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div id="rekapError" class="error-text"></div>
+        </section>
+
+        <section id="driverShipmentsView" class="card section hide">
+          <div class="title-row">
+            <div>
+              <h2>Pengiriman Saya</h2>
+              <div class="muted small">Kartu besar, mudah dibaca, dan touch-friendly untuk HP/tablet.</div>
+            </div>
+            <button id="reloadDriverBtn" class="btn btn-soft" type="button">Reload</button>
+          </div>
+          <div class="filters" style="margin-bottom:16px;">
+            <div class="field"><label class="label">Filter</label><select id="driverFilterView" class="select"><option value="all">Semua</option><option value="proses">Proses</option><option value="selesai">Selesai</option></select></div>
+          </div>
+          <div id="driverShipmentsError" class="error-text"></div>
+          <div id="driverShipmentsCards" class="cards"></div>
+        </section>
+
+        <section id="driverHistoryView" class="card section hide">
+          <div class="title-row">
+            <div>
+              <h2>Riwayat</h2>
+              <div class="muted small">Daftar ringkas semua pengiriman termasuk selesai.</div>
+            </div>
+            <button id="reloadHistoryBtn" class="btn btn-soft" type="button">Reload</button>
+          </div>
+          <div id="driverHistoryError" class="error-text"></div>
+          <div id="driverHistoryCards" class="cards"></div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div id="previewModal" class="modal" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div>
+          <div class="label" id="previewModalTitle">Preview Surat Jalan</div>
+          <div class="muted small" id="previewModalSubtitle">Dokumen siap cetak A5 portrait.</div>
+        </div>
+        <div class="form-actions">
+          <button id="printPreviewBtn" class="btn btn-primary" type="button">Print</button>
+          <button id="closePreviewBtn" class="btn btn-ghost" type="button">Tutup</button>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="print-sheet" id="printSheet">
+          <div class="print-header">
+            <div class="logo"><img id="printLogo" alt="Logo" /></div>
+            <div>
+              <div style="font-weight:800;font-size:16px;" id="printCompanyName">-</div>
+              <div class="small" id="printCompanyInfo">-</div>
+            </div>
+          </div>
+          <div class="print-title">
+            <h2>SURAT JALAN</h2>
+            <div class="small"><span id="printNo">-</span></div>
+            <div class="small">Tanggal: <span id="printDate">-</span></div>
+          </div>
+          <div class="print-meta">
+            <div><strong>Kepada:</strong> <span id="printTo">-</span><br><strong>Alamat:</strong> <span id="printAddress">-</span></div>
+            <div><strong>Driver:</strong> <span id="printDriver">-</span><br><strong>No HP:</strong> <span id="printPhone">-</span></div>
+          </div>
+          <table class="print-table">
+            <thead>
+              <tr><th style="width:32px;">No</th><th>Nama Barang</th><th style="width:74px;">Sat</th><th style="width:74px;">Jml</th><th>Keterangan</th></tr>
+            </thead>
+            <tbody id="printItemsBody"></tbody>
+          </table>
+          <div class="print-sign">
+            <div class="sign-box">
+              <div>Pengirim</div>
+              <div class="sign-line"></div>
+              <div class="sign-underline">Nama &amp; TTD</div>
+            </div>
+            <div class="sign-box">
+              <div>Penerima</div>
+              <div class="sign-line"></div>
+              <div class="sign-underline">Nama &amp; TTD</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="detailModal" class="modal" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div>
+          <div class="label">Detail Surat Jalan</div>
+          <div class="muted small" id="detailModalSubtitle">Informasi lengkap dan histori status.</div>
+        </div>
+        <div class="form-actions">
+          <button id="printDetailBtn" class="btn btn-primary" type="button">Print</button>
+          <button id="closeDetailBtn" class="btn btn-ghost" type="button">Tutup</button>
+        </div>
+      </div>
+      <div class="modal-body" id="detailContent"></div>
+    </div>
+  </div>
+
+  <div id="confirmPanel" class="panel" aria-hidden="true">
+    <div class="panel-head">
+      <div>
+        <div class="label">Konfirmasi Pengiriman</div>
+        <div class="muted small" id="confirmPanelSubtitle">Pilih status, ambil foto, dan simpan konfirmasi.</div>
+      </div>
+      <button id="closeConfirmPanelBtn" class="btn btn-ghost" type="button">Tutup</button>
+    </div>
+    <div class="panel-body">
+      <div class="segmented">
+        <button id="toggleDeliveredBtn" class="active" type="button">Terkirim ✓</button>
+        <button id="toggleFailedBtn" type="button">Gagal ✗</button>
+      </div>
+      <div class="card" style="padding:16px;">
+        <div class="title-row"><h3>GPS</h3><button id="refreshGpsBtn" class="btn btn-soft" type="button">Ambil GPS</button></div>
+        <div class="muted small" id="gpsStatus">GPS belum didapat.</div>
+      </div>
+      <div class="card" style="padding:16px;">
+        <div class="title-row"><h3>Kamera</h3><button id="openCameraBtn" class="btn btn-soft" type="button">Ambil Foto Bukti</button></div>
+        <div class="help">Gunakan kamera belakang. Untuk status Terkirim, foto bukti direkomendasikan; untuk Gagal, foto opsional.</div>
+        <div id="cameraError" class="error-text"></div>
+        <div class="camera-box hide" id="cameraBox">
+          <video id="cameraVideo" playsinline autoplay></video>
+          <div class="form-actions">
+            <button id="capturePhotoBtn" class="btn btn-primary" type="button">Capture</button>
+            <button id="stopCameraBtn" class="btn btn-ghost" type="button">Tutup Kamera</button>
+          </div>
+        </div>
+        <div class="preview-box hide" id="photoPreviewBox">
+          <img id="photoPreviewImg" alt="Preview foto bukti" />
+          <div class="form-actions">
+            <button id="retakePhotoBtn" class="btn btn-ghost" type="button">Foto Ulang</button>
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="label">Catatan</label>
+        <textarea id="confirmNote" class="textarea" placeholder="Catatan driver..."></textarea>
+      </div>
+      <div class="help" id="photoHint">Foto bukti tidak wajib jika status Terkirim, tetapi dianjurkan.</div>
+      <div class="form-actions">
+        <button id="saveConfirmBtn" class="btn btn-success" type="button">Simpan Konfirmasi</button>
+        <div id="confirmError" class="error-text"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="loadingOverlay" class="overlay" aria-hidden="true">
+    <div class="overlay-box">
+      <div class="spinner"></div>
+      <div>
+        <div style="font-weight:800;" id="loadingText">Memuat...</div>
+        <div class="muted small">Mohon tunggu sebentar.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-wrap" id="toastWrap"></div>
+
+  <script>
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbybMfFYQnS1ZsG5F3vjk8BJgY-PVhWAu2exyPXjd0UL3lVKLbTRdm-ISc41HVpqkDtr/exec";
+    const TZ = "Asia/Jakarta";
+    const SESSION_KEY = "sj_session";
+    const UNIT_OPTIONS = ["pcs", "kg", "liter", "box", "karton", "unit", "sak", "rim", "roll", "dus", "pack", "set", "lainnya"];
+
+    const state = {
+      config: {
+        nama_perusahaan: "SuratJalan",
+        alamat_perusahaan: "",
+        telepon: "",
+        logo_url: ""
+      },
+      session: null,
+      drivers: [],
+      adminSjList: [],
+      driverSjList: [],
+      rekap: null,
+      rekapChart: null,
+      currentView: null,
+      selectedDetailId: null,
+      selectedConfirmId: null,
+      confirmStatus: "Terkirim",
+      confirmGps: null,
+      confirmPhotoRaw: "",
+      confirmPhotoPreview: "",
+      cameraStream: null,
+      isSubmitting: false,
+      appReady: false
+    };
+
+    const el = {};
+
+    document.addEventListener('DOMContentLoaded', init);
+
+    function init() {
+      cacheElements();
+      bindEvents();
+      normalizePreviewImages();
+      loadConfigThenRoute();
+    }
+
+    function cacheElements() {
+      [
+        'loginView','appView','loginLogo','loginCompanyName','loginCompanyDesc','loginId','loginPassword','loginError','loginBtn','reloadConfigBtn',
+        'sidebar','sidebarLogo','sidebarCompanyName','sidebarCompanySub','adminNav','driverNav','logoutBtn','sessionText','menuToggle','userAvatar','userName','userRole',
+        'pageTitle','pageSubtitle',
+        'adminCreateView','adminListView','adminRekapView','driverShipmentsView','driverHistoryView',
+        'sjNamaPenerima','sjAlamatTujuan','sjNoHp','sjDriverId','sjKeterangan','itemsBody','addItemBtn','createSjBtn','createSjError','refreshDriversBtn',
+        'reloadListBtn','filterStatusAdmin','filterFromAdmin','filterToAdmin','filterDriverAdmin','applyFilterAdmin','adminListError','adminListCards',
+        'exportExcelBtn','rekapFrom','rekapTo','rekapDriver','applyRekapBtn','sumTotal','sumTerkirim','sumGagal','sumProses','rekapTableBody','rekapError','rekapChart',
+        'reloadDriverBtn','reloadHistoryBtn','driverFilterView','driverShipmentsError','driverShipmentsCards','driverHistoryError','driverHistoryCards',
+        'previewModal','previewModalTitle','previewModalSubtitle','printPreviewBtn','closePreviewBtn','printSheet','printLogo','printCompanyName','printCompanyInfo','printNo','printDate','printTo','printAddress','printDriver','printPhone','printItemsBody',
+        'detailModal','detailContent','printDetailBtn','closeDetailBtn',
+        'confirmPanel','closeConfirmPanelBtn','toggleDeliveredBtn','toggleFailedBtn','refreshGpsBtn','gpsStatus','openCameraBtn','cameraError','cameraBox','cameraVideo','capturePhotoBtn','stopCameraBtn','photoPreviewBox','photoPreviewImg','retakePhotoBtn','confirmNote','photoHint','saveConfirmBtn','confirmError',
+        'loadingOverlay','loadingText','toastWrap'
+      ].forEach((id) => el[id] = document.getElementById(id));
+    }
+
+    function bindEvents() {
+      el.loginBtn.addEventListener('click', handleLogin);
+      el.reloadConfigBtn.addEventListener('click', loadConfigThenRoute);
+      el.loginPassword.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleLogin(); });
+      el.logoutBtn.addEventListener('click', logout);
+      el.menuToggle.addEventListener('click', () => el.sidebar.classList.toggle('open'));
+
+      document.querySelectorAll('.nav-btn[data-view]').forEach((btn) => {
+        btn.addEventListener('click', () => switchView(btn.dataset.view));
+      });
+
+      el.addItemBtn.addEventListener('click', () => appendItemRow());
+      el.createSjBtn.addEventListener('click', handleCreateSj);
+      el.refreshDriversBtn.addEventListener('click', loadDrivers);
+      el.reloadListBtn.addEventListener('click', loadAdminList);
+      el.applyFilterAdmin.addEventListener('click', loadAdminList);
+      el.applyRekapBtn.addEventListener('click', loadRekap);
+      el.exportExcelBtn.addEventListener('click', exportRekapExcel);
+      el.reloadDriverBtn.addEventListener('click', loadDriverShipments);
+      el.reloadHistoryBtn.addEventListener('click', loadDriverHistory);
+      el.driverFilterView.addEventListener('change', renderDriverShipments);
+
+      el.closePreviewBtn.addEventListener('click', closePreviewModal);
+      el.printPreviewBtn.addEventListener('click', () => {
+        openPrintModalClasses('preview');
+        window.print();
+      });
+      el.closeDetailBtn.addEventListener('click', closeDetailModal);
+      el.printDetailBtn.addEventListener('click', () => {
+        openPrintModalClasses('detail');
+        window.print();
+      });
+
+      el.closeConfirmPanelBtn.addEventListener('click', closeConfirmPanel);
+      el.toggleDeliveredBtn.addEventListener('click', () => setConfirmStatus('Terkirim'));
+      el.toggleFailedBtn.addEventListener('click', () => setConfirmStatus('Gagal'));
+      el.refreshGpsBtn.addEventListener('click', acquireGps);
+      el.openCameraBtn.addEventListener('click', startCamera);
+      el.capturePhotoBtn.addEventListener('click', capturePhoto);
+      el.stopCameraBtn.addEventListener('click', stopCamera);
+      el.retakePhotoBtn.addEventListener('click', retakePhoto);
+      el.saveConfirmBtn.addEventListener('click', submitConfirmation);
+
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          closePreviewModal();
+          closeDetailModal();
+          closeConfirmPanel();
+          stopCamera();
+          el.sidebar.classList.remove('open');
+        }
+      });
+      window.addEventListener('resize', () => adjustMobileMenu());
+      window.addEventListener('beforeprint', () => {
+        const modal = document.querySelector('.modal.printing');
+        if (modal) modal.classList.remove('printing');
+      });
+    }
+
+    function setConfigFallback() {
+      state.config = {
+        nama_perusahaan: 'SuratJalan',
+        alamat_perusahaan: '',
+        telepon: '',
+        logo_url: ''
+      };
+      applyConfig();
+    }
+
+    function applyConfig() {
+      const name = state.config.nama_perusahaan || 'SuratJalan';
+      const info = [state.config.alamat_perusahaan, state.config.telepon].filter(Boolean).join(' | ');
+      el.loginCompanyName.textContent = name;
+      el.sidebarCompanyName.textContent = name;
+      el.sidebarCompanySub.textContent = info || 'Frontend Netlify';
+      el.loginCompanyDesc.textContent = info || 'Backend surat jalan multi-user untuk Admin dan Driver.';
+      el.printCompanyName.textContent = name;
+      el.printCompanyInfo.textContent = info || '-';
+      setLogoImage(el.loginLogo, state.config.logo_url);
+      setLogoImage(el.sidebarLogo, state.config.logo_url);
+      setLogoImage(el.printLogo, state.config.logo_url);
+    }
+
+    function setLogoImage(img, url) {
+      if (!url) {
+        img.removeAttribute('src');
+        img.style.background = '#e2e8f0';
+        return;
+      }
+      img.src = url;
+      img.onerror = () => { img.removeAttribute('src'); img.style.background = '#e2e8f0'; };
+    }
+
+    function isAppsScriptUrlValid() {
+      return APPS_SCRIPT_URL && !APPS_SCRIPT_URL.includes('GANTI_DENGAN_URL_APPS_SCRIPT_KAMU');
+    }
+
+    async function handleLogin() {
+      clearLoginError();
+      const id = el.loginId.value.trim();
+      const password = el.loginPassword.value.trim();
+      if (!id || !password) {
+        setLoginError('ID dan password wajib diisi.');
+        return;
+      }
+      await withSubmitLock('Masuk...', async () => {
+        const res = await apiCall({ action: 'login', id, password });
+        if (!res.success) throw new Error(res.message || 'Login gagal.');
+        saveSession({ id: res.id, nama: res.nama, role: res.role });
+        state.session = getSession();
+        routeBySession();
+        toast('success', 'Login berhasil', `Selamat datang, ${res.nama}.`);
+      }, { inlineError: setLoginError });
+    }
+
+    function logout() {
+      stopCamera();
+      localStorage.removeItem('sj_last_confirm');
+      sessionStorage.removeItem(SESSION_KEY);
+      state.session = null;
+      state.selectedDetailId = null;
+      state.selectedConfirmId = null;
+      showLoginView();
+      toast('info', 'Logout', 'Sesi telah dihapus.');
+    }
+
+    function saveSession(session) {
+      sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
+    }
+
+    function getSession() {
+      try {
+        const raw = sessionStorage.getItem(SESSION_KEY);
+        return raw ? JSON.parse(raw) : null;
+      } catch {
+        return null;
+      }
+    }
+
+    function routeBySession() {
+      if (!state.session) {
+        showLoginView();
+        return;
+      }
+      showAppView();
+      if (state.session.role === 'Admin') {
+        openAdminDefault();
+      } else if (state.session.role === 'Driver') {
+        openDriverDefault();
+      } else {
+        logout();
+        toast('error', 'Akses ditolak', 'Role tidak dikenal.');
+      }
+    }
+
+    function showLoginView() {
+      el.loginView.classList.remove('hide');
+      el.appView.classList.add('hide');
+      el.menuToggle.classList.add('hide');
+    }
+
+    function showAppView() {
+      el.loginView.classList.add('hide');
+      el.appView.classList.remove('hide');
+      el.menuToggle.classList.remove('hide');
+      adjustMobileMenu();
+      updateSessionUI();
+    }
+
+    function updateSessionUI() {
+      if (!state.session) return;
+      el.userName.textContent = state.session.nama || '-';
+      el.userRole.textContent = state.session.role || '-';
+      el.userAvatar.textContent = initials(state.session.nama || state.session.id || 'SJ');
+      el.sessionText.innerHTML = `<strong>${escapeHtml(state.session.nama || '-')}</strong><br>${escapeHtml(state.session.id || '-')}`;
+    }
+
+    function openAdminDefault() {
+      showSection('admin-create');
+      setPageMeta('Buat Surat Jalan', 'Halaman admin untuk membuat surat jalan dan mengelola pengiriman.');
+      loadDrivers();
+      loadAdminList();
+      loadRekap();
+      ensureOneItemRow();
+    }
+
+    function openDriverDefault() {
+      showSection('driver-shipments');
+      setPageMeta('Pengiriman Saya', 'Lihat tugas pengiriman, mulai antar, dan konfirmasi penerimaan.');
+      acquireGps(true);
+      loadDriverShipments();
+      loadDriverHistory();
+    }
+
+    function adjustMobileMenu() {
+      if (window.innerWidth > 860) {
+        el.sidebar.classList.remove('open');
+      }
+    }
+
+    function showSection(view) {
+      state.currentView = view;
+      const map = {
+        'admin-create': el.adminCreateView,
+        'admin-list': el.adminListView,
+        'admin-rekap': el.adminRekapView,
+        'driver-shipments': el.driverShipmentsView,
+        'driver-history': el.driverHistoryView
+      };
+      Object.values(map).forEach((section) => section.classList.add('hide'));
+      map[view].classList.remove('hide');
+
+      document.querySelectorAll('.nav-btn[data-view]').forEach((btn) => {
+        btn.classList.toggle('active', btn.dataset.view === view);
+      });
+
+      if (view.startsWith('admin')) {
+        el.adminNav.classList.remove('hide');
+        el.driverNav.classList.add('hide');
+        el.pageTitle.textContent = view === 'admin-list' ? 'Daftar Surat Jalan' : view === 'admin-rekap' ? 'Rekap & Laporan' : 'Buat Surat Jalan';
+        el.pageSubtitle.textContent = view === 'admin-list' ? 'Daftar surat jalan dengan filter status dan tanggal.' : view === 'admin-rekap' ? 'Laporan pengiriman per periode dan per driver.' : 'Input data surat jalan dengan multiple item.';
+      } else {
+        el.adminNav.classList.add('hide');
+        el.driverNav.classList.remove('hide');
+        el.pageTitle.textContent = view === 'driver-history' ? 'Riwayat' : 'Pengiriman Saya';
+        el.pageSubtitle.textContent = view === 'driver-history' ? 'Riwayat pengiriman selesai dan status konfirmasi.' : 'Daftar tugas pengiriman yang wajib dikerjakan driver.';
+      }
+    }
+
+    function setPageMeta(title, subtitle) {
+      el.pageTitle.textContent = title;
+      el.pageSubtitle.textContent = subtitle;
+    }
+
+    function openAdminCreate() { showSection('admin-create'); setPageMeta('Buat Surat Jalan', 'Input data surat jalan dengan multiple item.'); }
+    function openAdminList() { showSection('admin-list'); setPageMeta('Daftar Surat Jalan', 'Filter dan lihat semua surat jalan.'); }
+    function openAdminRekap() { showSection('admin-rekap'); setPageMeta('Rekap & Laporan', 'Ringkasan pengiriman dan export Excel.'); }
+    function openDriverShipments() { showSection('driver-shipments'); setPageMeta('Pengiriman Saya', 'Tugas pengiriman aktif milik driver ini.'); }
+    function openDriverHistory() { showSection('driver-history'); setPageMeta('Riwayat', 'Daftar pengiriman yang sudah selesai.'); }
+
+    function switchView(view) {
+      if (view === 'admin-create') openAdminCreate();
+      else if (view === 'admin-list') openAdminList();
+      else if (view === 'admin-rekap') openAdminRekap();
+      else if (view === 'driver-shipments') openDriverShipments();
+      else if (view === 'driver-history') openDriverHistory();
+    }
+
+    async function loadDrivers() {
+      if (!state.session || state.session.role !== 'Admin') return;
+      try {
+        const res = await apiCall({ action: 'getDriver', requesterRole: state.session.role, requesterId: state.session.id });
+        if (!res.success) throw new Error(res.message || 'Gagal memuat driver.');
+        state.drivers = res.data || [];
+        fillDriverSelects();
+      } catch (err) {
+        toast('error', 'Driver gagal dimuat', err.message || String(err));
+      }
+    }
+
+    function fillDriverSelects() {
+      const html = ['<option value="">Pilih Driver</option>']
+        .concat(state.drivers.map((d) => `<option value="${escapeAttr(d.id)}">${escapeHtml(d.nama)} (${escapeHtml(d.id)})</option>`))
+        .join('');
+      el.sjDriverId.innerHTML = html;
+      const filterHtml = ['<option value="">Semua Driver</option>']
+        .concat(state.drivers.map((d) => `<option value="${escapeAttr(d.id)}">${escapeHtml(d.nama)}</option>`))
+        .join('');
+      el.filterDriverAdmin.innerHTML = filterHtml;
+      el.rekapDriver.innerHTML = filterHtml;
+    }
+
+    function ensureOneItemRow() {
+      if (el.itemsBody.children.length === 0) appendItemRow();
+    }
+
+    function appendItemRow(seed = {}) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><input class="input item-nama" placeholder="Nama barang" value="${escapeAttr(seed.namaBarang || '')}"></td>
+        <td>
+          <select class="select item-satuan">${unitOptionsHtml(seed.satuan)}</select>
+        </td>
+        <td><input class="input item-jumlah" type="number" min="1" step="1" placeholder="0" value="${escapeAttr(seed.jumlah || '')}"></td>
+        <td><input class="input item-keterangan" placeholder="Keterangan" value="${escapeAttr(seed.keterangan || '')}"></td>
+        <td><button type="button" class="remove-btn" aria-label="Hapus">×</button></td>
+      `;
+      tr.querySelector('.remove-btn').addEventListener('click', () => {
+        if (el.itemsBody.children.length <= 1) {
+          toast('error', 'Minimal 1 item', 'Surat jalan harus memiliki minimal 1 item.');
+          return;
+        }
+        tr.remove();
+      });
+      el.itemsBody.appendChild(tr);
+    }
+
+    function unitOptionsHtml(selected) {
+      return ['<option value="">Satuan</option>']
+        .concat(UNIT_OPTIONS.map((u) => `<option ${selected === u ? 'selected' : ''} value="${escapeAttr(u)}">${escapeHtml(u)}</option>`))
+        .join('');
+    }
+
+    function collectItems() {
+      const rows = [...el.itemsBody.querySelectorAll('tr')];
+      return rows.map((row) => ({
+        namaBarang: row.querySelector('.item-nama').value.trim(),
+        satuan: row.querySelector('.item-satuan').value.trim(),
+        jumlah: row.querySelector('.item-jumlah').value.trim(),
+        keterangan: row.querySelector('.item-keterangan').value.trim()
+      }));
+    }
+
+    async function handleCreateSj() {
+      if (!state.session || state.session.role !== 'Admin') return;
+      clearText(el.createSjError);
+      const form = {
+        namaPenerima: el.sjNamaPenerima.value.trim(),
+        alamatTujuan: el.sjAlamatTujuan.value.trim(),
+        noHPPenerima: el.sjNoHp.value.trim(),
+        driverId: el.sjDriverId.value.trim(),
+        namaDriver: el.sjDriverId.options[el.sjDriverId.selectedIndex]?.textContent || '',
+        keterangan: el.sjKeterangan.value.trim(),
+        items: collectItems()
+      };
+
+      if (!form.namaPenerima || !form.alamatTujuan || !form.driverId) {
+        setText(el.createSjError, 'Nama penerima, alamat tujuan, dan driver wajib diisi.');
+        return;
+      }
+      if (!form.items.length) {
+        setText(el.createSjError, 'Minimal 1 item.');
+        return;
+      }
+      for (const item of form.items) {
+        if (!item.namaBarang || !item.jumlah) {
+          setText(el.createSjError, 'Setiap item wajib punya nama barang dan jumlah.');
+          return;
+        }
+      }
+
+      await withSubmitLock('Membuat surat jalan...', async () => {
+        const res = await apiCall({
+          action: 'buatSuratJalan',
+          requesterId: state.session.id,
+          requesterRole: state.session.role,
+          ...form
+        });
+        if (!res.success) throw new Error(res.message || 'Gagal membuat surat jalan.');
+        toast('success', 'Surat jalan dibuat', `Nomor SJ baru: ${res.nomorSJ}`);
+        showPreviewModal({ nomorSJ: res.nomorSJ, tanggal: res.tanggal, ...form });
+        loadAdminList();
+        loadRekap();
+      }, { inlineError: setText.bind(null, el.createSjError) });
+    }
+
+    function showPreviewModal(data) {
+      el.printNo.textContent = data.nomorSJ || '-';
+      el.printDate.textContent = formatDisplayDate(data.tanggal || todayISO());
+      el.printTo.textContent = data.namaPenerima || '-';
+      el.printAddress.textContent = data.alamatTujuan || '-';
+      el.printDriver.textContent = data.namaDriver || '-';
+      el.printPhone.textContent = data.noHPPenerima || '-';
+      el.printItemsBody.innerHTML = (data.items || []).map((item, index) => `
+        <tr>
+          <td>${index + 1}</td>
+          <td>${escapeHtml(item.namaBarang || '')}</td>
+          <td>${escapeHtml(item.satuan || '')}</td>
+          <td>${escapeHtml(String(item.jumlah || ''))}</td>
+          <td>${escapeHtml(item.keterangan || '')}</td>
+        </tr>
+      `).join('');
+      el.previewModal.classList.add('open');
+      el.previewModal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closePreviewModal() {
+      el.previewModal.classList.remove('open');
+      el.previewModal.setAttribute('aria-hidden', 'true');
+    }
+
+    function openDetailModal(detail) {
+      el.detailContent.innerHTML = renderDetailHtml(detail);
+      el.detailModal.classList.add('open');
+      el.detailModal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeDetailModal() {
+      el.detailModal.classList.remove('open');
+      el.detailModal.setAttribute('aria-hidden', 'true');
+      el.detailContent.innerHTML = '';
+      state.selectedDetailId = null;
+    }
+
+    function renderDetailHtml(detail) {
+      const sj = detail.sj || {};
+      const items = detail.items || [];
+      const status = sj.status || '-';
+      const steps = [
+        { key: 'Dibuat', label: 'Dibuat' },
+        { key: 'Dikirim', label: 'Dikirim' },
+        { key: 'Terkirim', label: 'Terkirim' },
+        { key: 'Gagal', label: 'Gagal' }
+      ];
+      const currentIndex = steps.findIndex((s) => s.key === status);
+      const stepHtml = steps.map((s, idx) => {
+        const classes = [ 'step' ];
+        if (idx <= currentIndex && status !== 'Gagal') classes.push('done');
+        if (s.key === status) classes.push('active');
+        if (status === 'Gagal' && s.key === 'Gagal') classes.push('active', 'done');
+        return `<div class="${classes.join(' ')}"><div class="t">${s.label}</div><div class="d">${idx <= currentIndex ? 'Berjalan' : 'Menunggu'}</div></div>`;
+      }).join('');
+      const mapsLink = sj.latitude && sj.longitude ? `https://www.google.com/maps?q=${encodeURIComponent(`${sj.latitude},${sj.longitude}`)}` : '';
+      return `
+        <div class="stack">
+          <div class="grid-2-equal">
+            <div class="card" style="padding:16px;">
+              <div class="title-row"><h3>Info Surat Jalan</h3><span class="badge ${statusBadgeClass(status)}">${escapeHtml(status)}</span></div>
+              <div class="meta">
+                <div><strong>Nomor SJ:</strong> ${escapeHtml(sj.nomorSJ || '-')}</div>
+                <div><strong>ID:</strong> ${escapeHtml(sj.id || '-')}</div>
+                <div><strong>Tanggal Buat:</strong> ${escapeHtml(sj.tanggalBuat || '-')} ${escapeHtml(sj.jamBuat || '')}</div>
+                <div><strong>Dibuat Oleh:</strong> ${escapeHtml(sj.dibuatOleh || '-')}</div>
+                <div><strong>Driver:</strong> ${escapeHtml(sj.namaDriver || '-')} (${escapeHtml(sj.driverId || '-')})</div>
+                <div><strong>Penerima:</strong> ${escapeHtml(sj.namaPenerima || '-')}</div>
+                <div><strong>Alamat:</strong> ${escapeHtml(sj.alamatTujuan || '-')}</div>
+                <div><strong>No HP:</strong> ${escapeHtml(sj.noHPPenerima || '-')}</div>
+                <div><strong>Keterangan:</strong> ${escapeHtml(sj.keterangan || '-')}</div>
+              </div>
+            </div>
+            <div class="card" style="padding:16px;">
+              <div class="title-row"><h3>Status History</h3></div>
+              <div class="stepper">${stepHtml}</div>
+            </div>
+          </div>
+          <div class="card" style="padding:16px;">
+            <div class="title-row"><h3>Item Barang</h3></div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>No</th><th>Nama Barang</th><th>Satuan</th><th>Jumlah</th><th>Keterangan</th></tr></thead>
+                <tbody>
+                  ${items.map((it, idx) => `<tr><td>${idx + 1}</td><td>${escapeHtml(it.namaBarang || '')}</td><td>${escapeHtml(it.satuan || '')}</td><td>${escapeHtml(String(it.jumlah || ''))}</td><td>${escapeHtml(it.keterangan || '')}</td></tr>`).join('') || '<tr><td colspan="5" class="muted">Tidak ada item</td></tr>'}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          ${(status === 'Terkirim' || status === 'Gagal') ? `
+            <div class="grid-2-equal">
+              <div class="card" style="padding:16px;">
+                <div class="title-row"><h3>Bukti Konfirmasi</h3></div>
+                ${sj.fotoBuktiUrl ? `<img src="${escapeAttr(sj.fotoBuktiUrl)}" alt="Foto bukti" style="width:100%;border-radius:16px;aspect-ratio:4/3;object-fit:cover;border:1px solid #e2e8f0;">` : '<div class="empty-state">Tidak ada foto bukti.</div>'}
+              </div>
+              <div class="card" style="padding:16px;">
+                <div class="title-row"><h3>GPS & Catatan</h3></div>
+                <div class="meta">
+                  <div><strong>Latitude:</strong> ${escapeHtml(sj.latitude || '-')}</div>
+                  <div><strong>Longitude:</strong> ${escapeHtml(sj.longitude || '-')}</div>
+                  <div><strong>Waktu Konfirmasi:</strong> ${escapeHtml(sj.waktuKonfirmasi || '-')}</div>
+                  <div><strong>Catatan Driver:</strong> ${escapeHtml(sj.catatanDriver || '-')}</div>
+                </div>
+                ${mapsLink ? `<div style="margin-top:12px;"><a class="btn btn-soft" href="${mapsLink}" target="_blank" rel="noopener">Buka Google Maps</a></div>` : ''}
+              </div>
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }
+
+    function statusBadgeClass(status) {
+      if (status === 'Dibuat') return 'gray';
+      if (status === 'Dikirim') return 'blue';
+      if (status === 'Terkirim') return 'green';
+      if (status === 'Gagal') return 'red';
+      return 'gray';
+    }
+
+    function renderAdminList(data) {
+      if (!data.length) {
+        el.adminListCards.innerHTML = '<div class="empty-state">Belum ada surat jalan sesuai filter.</div>';
+        return;
+      }
+      el.adminListCards.innerHTML = data.map((sj) => `
+        <div class="sj-card">
+          <div class="sj-card-head">
+            <div>
+              <div class="sj-card-title">${escapeHtml(sj.nomorSJ || '-')}</div>
+              <div class="small muted">${escapeHtml(formatDisplayDate(sj.tanggalBuat || ''))} • ${escapeHtml(sj.jamBuat || '')}</div>
+            </div>
+            <span class="badge ${statusBadgeClass(sj.status)}">${escapeHtml(sj.status || '-')}</span>
+          </div>
+          <div class="meta">
+            <div><strong>${escapeHtml(sj.namaPenerima || '-')}</strong></div>
+            <div class="truncate-2">${escapeHtml(sj.alamatTujuan || '-')}</div>
+            <div><strong>Driver:</strong> ${escapeHtml(sj.namaDriver || '-')}</div>
+            <div><strong>Waktu Konfirmasi:</strong> ${escapeHtml(sj.waktuKonfirmasi || '-')}</div>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-primary detail-btn" data-id="${escapeAttr(sj.id)}">Detail</button>
+          </div>
+        </div>
+      `).join('');
+      el.adminListCards.querySelectorAll('.detail-btn').forEach((btn) => {
+        btn.addEventListener('click', () => loadDetail(btn.dataset.id));
+      });
+    }
+
+    async function loadAdminList() {
+      if (!state.session || state.session.role !== 'Admin') return;
+      clearText(el.adminListError);
+      try {
+        const payload = {
+          action: 'getSuratJalan',
+          requesterRole: state.session.role,
+          requesterId: state.session.id,
+          filterStatus: el.filterStatusAdmin.value.trim(),
+          filterTanggalDari: el.filterFromAdmin.value,
+          filterTanggalSampai: el.filterToAdmin.value,
+          filterDriver: el.filterDriverAdmin.value.trim()
+        };
+        const res = await apiCall(payload);
+        if (!res.success) throw new Error(res.message || 'Gagal memuat daftar SJ.');
+        state.adminSjList = res.data || [];
+        renderAdminList(state.adminSjList);
+      } catch (err) {
+        setText(el.adminListError, err.message || String(err));
+      }
+    }
+
+    async function loadDetail(id) {
+      try {
+        const res = await apiCall({ action: 'getDetailSJ', id });
+        if (!res.success) throw new Error(res.message || 'Gagal memuat detail.');
+        state.selectedDetailId = id;
+        state.detailCache = res;
+        openDetailModal(res);
+      } catch (err) {
+        toast('error', 'Detail gagal', err.message || String(err));
+      }
+    }
+
+    async function loadRekap() {
+      if (!state.session || state.session.role !== 'Admin') return;
+      clearText(el.rekapError);
+      try {
+        const res = await apiCall({
+          action: 'getRekap',
+          requesterRole: state.session.role,
+          tanggalDari: el.rekapFrom.value,
+          tanggalSampai: el.rekapTo.value,
+          filterDriver: el.rekapDriver.value.trim()
+        });
+        if (!res.success) throw new Error(res.message || 'Gagal memuat rekap.');
+        state.rekap = res;
+        const summary = res.summary || { total: 0, terkirim: 0, gagal: 0, proses: 0 };
+        el.sumTotal.textContent = summary.total || 0;
+        el.sumTerkirim.textContent = summary.terkirim || 0;
+        el.sumGagal.textContent = summary.gagal || 0;
+        el.sumProses.textContent = summary.proses || 0;
+        renderRekapTable(res.rekap || []);
+        renderRekapChart(summary);
+      } catch (err) {
+        setText(el.rekapError, err.message || String(err));
+      }
+    }
+
+    function renderRekapTable(rows) {
+      if (!rows.length) {
+        el.rekapTableBody.innerHTML = '<tr><td colspan="6" class="muted">Belum ada data rekap.</td></tr>';
+        return;
+      }
+      el.rekapTableBody.innerHTML = rows.map((r) => {
+        const successRate = r.total ? Math.round((r.terkirim / r.total) * 100) : 0;
+        return `<tr>
+          <td>${escapeHtml(r.namaDriver || '-')}</td>
+          <td>${escapeHtml(String(r.total || 0))}</td>
+          <td>${escapeHtml(String(r.terkirim || 0))}</td>
+          <td>${escapeHtml(String(r.gagal || 0))}</td>
+          <td>${escapeHtml(String(r.proses || 0))}</td>
+          <td>${successRate}%</td>
+        </tr>`;
+      }).join('');
+    }
+
+    function renderRekapChart(summary) {
+      const ctx = el.rekapChart.getContext('2d');
+      const data = [summary.terkirim || 0, summary.gagal || 0, summary.proses || 0];
+      if (state.rekapChart) state.rekapChart.destroy();
+      state.rekapChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Terkirim', 'Gagal', 'Proses'],
+          datasets: [{
+            data,
+            backgroundColor: ['#059669', '#dc2626', '#1e40af'],
+            borderWidth: 0,
+            hoverOffset: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { position: 'bottom' }
+          },
+          cutout: '66%'
+        }
+      });
+    }
+
+    async function exportRekapExcel() {
+      if (!state.session || state.session.role !== 'Admin') return;
+      try {
+        const res = await apiCall({
+          action: 'exportRekap',
+          requesterRole: state.session.role,
+          tanggalDari: el.rekapFrom.value,
+          tanggalSampai: el.rekapTo.value,
+          filterDriver: el.rekapDriver.value.trim()
+        });
+        if (!res.success) throw new Error(res.message || 'Gagal export.');
+        const headers = res.headers || [];
+        const data = res.data || [];
+        const ws = XLSX.utils.aoa_to_sheet([headers, ...data]);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Rekap');
+        XLSX.writeFile(wb, `rekap-surat-jalan-${todayISO()}.xlsx`);
+      } catch (err) {
+        toast('error', 'Export gagal', err.message || String(err));
+      }
+    }
+
+    function renderDriverShipments() {
+      const filter = el.driverFilterView.value;
+      let rows = state.driverSjList.slice();
+      if (filter === 'proses') rows = rows.filter((r) => r.status === 'Dibuat' || r.status === 'Dikirim');
+      if (filter === 'selesai') rows = rows.filter((r) => r.status === 'Terkirim' || r.status === 'Gagal');
+      if (!rows.length) {
+        el.driverShipmentsCards.innerHTML = '<div class="empty-state">Belum ada pengiriman sesuai filter.</div>';
+        return;
+      }
+      el.driverShipmentsCards.innerHTML = rows.map((sj) => {
+        const canStart = sj.status === 'Dibuat';
+        const canConfirm = sj.status === 'Dikirim';
+        return `
+          <div class="driver-card">
+            <div class="top">
+              <div>
+                <div class="badge ${statusBadgeClass(sj.status)}">${escapeHtml(sj.status || '-')}</div>
+                <div class="name" style="margin-top:10px;">${escapeHtml(sj.nomorSJ || '-')}</div>
+                <div class="small muted" style="margin-top:4px;">${escapeHtml(formatDisplayDate(sj.tanggalBuat || ''))} • ${escapeHtml(sj.jamBuat || '')}</div>
+              </div>
+              <button class="btn btn-primary detail-driver-btn" data-id="${escapeAttr(sj.id)}">Detail</button>
+            </div>
+            <div class="name">${escapeHtml(sj.namaPenerima || '-')}</div>
+            <div class="address">${escapeHtml(sj.alamatTujuan || '-')}</div>
+            <div class="meta">
+              <div><strong>No HP:</strong> <a href="tel:${escapeAttr(sj.noHPPenerima || '')}">${escapeHtml(sj.noHPPenerima || '-')}</a></div>
+              <div><strong>Driver:</strong> ${escapeHtml(sj.namaDriver || '-')}</div>
+            </div>
+            <div class="items">
+              ${(sj.items || []).map((it) => `<div class="item-pill"><span>${escapeHtml(it.namaBarang || '-')}</span><strong>${escapeHtml(String(it.jumlah || '-'))} ${escapeHtml(it.satuan || '')}</strong></div>`).join('') || '<div class="item-pill"><span>Tidak ada item</span></div>'}
+            </div>
+            <div class="driver-actions">
+              ${canStart ? `<button class="btn btn-success start-btn" data-id="${escapeAttr(sj.id)}">Mulai Antar</button>` : ''}
+              ${canConfirm ? `<button class="btn btn-primary confirm-btn" data-id="${escapeAttr(sj.id)}">Konfirmasi Terima</button><button class="btn btn-warning fail-btn" data-id="${escapeAttr(sj.id)}">Laporkan Gagal</button>` : ''}
+              ${sj.status === 'Terkirim' || sj.status === 'Gagal' ? `<button class="btn btn-soft detail-driver-btn" data-id="${escapeAttr(sj.id)}">Lihat Detail</button>` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+      el.driverShipmentsCards.querySelectorAll('.detail-driver-btn').forEach((btn) => btn.addEventListener('click', () => loadDetail(btn.dataset.id)));
+      el.driverShipmentsCards.querySelectorAll('.start-btn').forEach((btn) => btn.addEventListener('click', () => startDelivery(btn.dataset.id)));
+      el.driverShipmentsCards.querySelectorAll('.confirm-btn').forEach((btn) => btn.addEventListener('click', () => openConfirmPanel(btn.dataset.id, 'Terkirim')));
+      el.driverShipmentsCards.querySelectorAll('.fail-btn').forEach((btn) => btn.addEventListener('click', () => openConfirmPanel(btn.dataset.id, 'Gagal')));
+    }
+
+    async function loadDriverShipments() {
+      if (!state.session || state.session.role !== 'Driver') return;
+      clearText(el.driverShipmentsError);
+      try {
+        const res = await apiCall({ action: 'getSuratJalan', requesterRole: 'Driver', requesterId: state.session.id });
+        if (!res.success) throw new Error(res.message || 'Gagal memuat pengiriman.');
+        state.driverSjList = await normalizeDriverRows(res.data || []);
+        renderDriverShipments();
+      } catch (err) {
+        setText(el.driverShipmentsError, err.message || String(err));
+      }
+    }
+
+    async function loadDriverHistory() {
+      if (!state.session || state.session.role !== 'Driver') return;
+      clearText(el.driverHistoryError);
+      try {
+        const res = await apiCall({ action: 'getSuratJalan', requesterRole: 'Driver', requesterId: state.session.id });
+        if (!res.success) throw new Error(res.message || 'Gagal memuat riwayat.');
+        const rows = (await normalizeDriverRows(res.data || [])).filter((r) => r.status === 'Terkirim' || r.status === 'Gagal');
+        renderDriverHistory(rows);
+      } catch (err) {
+        setText(el.driverHistoryError, err.message || String(err));
+      }
+    }
+
+    async function normalizeDriverRows(rows) {
+      const enriched = await Promise.all(rows.map(async (row) => {
+        try {
+          const detail = await apiCall({ action: 'getDetailSJ', id: row.id });
+          if (detail && detail.success) {
+            return { ...row, items: detail.items || [] };
+          }
+        } catch (err) {
+          // Keep the row if the detail lookup fails.
+        }
+        return { ...row, items: row.items || [] };
+      }));
+      return enriched;
+    }
+
+    function renderDriverHistory(rows) {
+      if (!rows.length) {
+        el.driverHistoryCards.innerHTML = '<div class="empty-state">Belum ada riwayat selesai.</div>';
+        return;
+      }
+      el.driverHistoryCards.innerHTML = rows.map((sj) => `
+        <div class="sj-card">
+          <div class="sj-card-head">
+            <div>
+              <div class="sj-card-title">${escapeHtml(sj.nomorSJ || '-')}</div>
+              <div class="small muted">${escapeHtml(formatDisplayDate(sj.tanggalBuat || ''))} • ${escapeHtml(sj.waktuKonfirmasi || '')}</div>
+            </div>
+            <span class="badge ${statusBadgeClass(sj.status)}">${escapeHtml(sj.status || '-')}</span>
+          </div>
+          <div class="meta">
+            <div><strong>${escapeHtml(sj.namaPenerima || '-')}</strong></div>
+            <div class="truncate-2">${escapeHtml(sj.alamatTujuan || '-')}</div>
+            <div><strong>Konfirmasi:</strong> ${escapeHtml(sj.waktuKonfirmasi || '-')}</div>
+          </div>
+          <div class="form-actions"><button class="btn btn-primary detail-btn" data-id="${escapeAttr(sj.id)}">Detail</button></div>
+        </div>
+      `).join('');
+      el.driverHistoryCards.querySelectorAll('.detail-btn').forEach((btn) => btn.addEventListener('click', () => loadDetail(btn.dataset.id)));
+    }
+
+    async function startDelivery(id) {
+      if (!state.session || state.session.role !== 'Driver') return;
+      await withSubmitLock('Memperbarui status...', async () => {
+        const res = await apiCall({
+          action: 'updateStatusDriver',
+          requesterId: state.session.id,
+          requesterRole: 'Driver',
+          id,
+          statusBaru: 'Dikirim'
+        });
+        if (!res.success) throw new Error(res.message || 'Gagal update status.');
+        toast('success', 'Status diperbarui', 'Surat jalan sekarang Dikirim.');
+        await loadDriverShipments();
+        await loadDriverHistory();
+      });
+    }
+
+    function openConfirmPanel(id, status) {
+      state.selectedConfirmId = id;
+      state.confirmStatus = status || 'Terkirim';
+      setConfirmStatus(state.confirmStatus);
+      el.confirmNote.value = '';
+      el.confirmGps = null;
+      state.confirmPhotoRaw = '';
+      state.confirmPhotoPreview = '';
+      el.photoPreviewBox.classList.add('hide');
+      el.photoPreviewImg.removeAttribute('src');
+      clearText(el.confirmError);
+      clearText(el.cameraError);
+      el.confirmPanel.classList.add('open');
+      el.confirmPanel.setAttribute('aria-hidden', 'false');
+      acquireGps(true);
+    }
+
+    function closeConfirmPanel() {
+      el.confirmPanel.classList.remove('open');
+      el.confirmPanel.setAttribute('aria-hidden', 'true');
+      stopCamera();
+      state.selectedConfirmId = null;
+      state.confirmPhotoRaw = '';
+      state.confirmPhotoPreview = '';
+    }
+
+    function setConfirmStatus(status) {
+      state.confirmStatus = status;
+      el.toggleDeliveredBtn.classList.toggle('active', status === 'Terkirim');
+      el.toggleFailedBtn.classList.toggle('active', status === 'Gagal');
+      el.photoHint.textContent = status === 'Terkirim'
+        ? 'Foto bukti tidak wajib, tetapi dianjurkan untuk konfirmasi terkirim.'
+        : 'Foto bersifat opsional. Catatan driver wajib diisi jika pengiriman gagal.';
+      el.confirmNote.placeholder = status === 'Gagal' ? 'Catatan wajib untuk pengiriman gagal...' : 'Catatan driver...';
+    }
+
+    async function acquireGps(silent = false) {
+      if (!navigator.geolocation) {
+        state.confirmGps = null;
+        setGpsStatus('Geolocation tidak didukung browser ini.', 'warning');
+        if (!silent) toast('error', 'GPS tidak tersedia', 'Browser tidak mendukung geolocation.');
+        return null;
+      }
+      setGpsStatus('Mencari GPS...', 'info');
+      return new Promise((resolve) => {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            state.confirmGps = { latitude: pos.coords.latitude, longitude: pos.coords.longitude };
+            setGpsStatus(`GPS didapat: ${state.confirmGps.latitude.toFixed(6)}, ${state.confirmGps.longitude.toFixed(6)}`, 'success');
+            resolve(state.confirmGps);
+          },
+          (err) => {
+            state.confirmGps = null;
+            setGpsStatus(`GPS gagal: ${err.message}. Konfirmasi tetap bisa dilanjutkan.`, 'warning');
+            if (!silent) toast('error', 'GPS gagal', err.message || 'Gagal mengambil lokasi.');
+            resolve(null);
+          },
+          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+      });
+    }
+
+    function setGpsStatus(message, tone) {
+      el.gpsStatus.textContent = message;
+      el.gpsStatus.style.color = tone === 'success' ? 'var(--success)' : tone === 'warning' ? 'var(--warning)' : tone === 'info' ? 'var(--primary)' : 'var(--muted)';
+    }
+
+    async function startCamera() {
+      clearText(el.cameraError);
+      try {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          throw new Error('Browser tidak mendukung kamera.');
+        }
+        stopCamera();
+        state.cameraStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: 'environment' } },
+          audio: false
+        });
+        el.cameraVideo.srcObject = state.cameraStream;
+        el.cameraBox.classList.remove('hide');
+        el.photoPreviewBox.classList.add('hide');
+      } catch (err) {
+        setText(el.cameraError, cameraErrorMessage(err));
+      }
+    }
+
+    function cameraErrorMessage(err) {
+      const code = err && (err.name || err.message) ? `${err.name || ''} ${err.message || ''}`.trim() : 'Gagal membuka kamera.';
+      return code;
+    }
+
+    function capturePhoto() {
+      if (!el.cameraVideo.srcObject) {
+        setText(el.cameraError, 'Kamera belum aktif.');
+        return;
+      }
+      const video = el.cameraVideo;
+      const canvas = document.createElement('canvas');
+      canvas.width = 800;
+      canvas.height = 600;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+      const raw = stripDataUrl(dataUrl);
+      state.confirmPhotoRaw = raw;
+      state.confirmPhotoPreview = dataUrl;
+      el.photoPreviewImg.src = dataUrl;
+      el.photoPreviewBox.classList.remove('hide');
+      stopCamera();
+      toast('success', 'Foto siap', 'Foto bukti berhasil ditangkap.');
+    }
+
+    function retakePhoto() {
+      state.confirmPhotoRaw = '';
+      state.confirmPhotoPreview = '';
+      el.photoPreviewBox.classList.add('hide');
+      el.photoPreviewImg.removeAttribute('src');
+      startCamera();
+    }
+
+    function stopCamera() {
+      if (state.cameraStream) {
+        state.cameraStream.getTracks().forEach((track) => track.stop());
+        state.cameraStream = null;
+      }
+      if (el.cameraVideo) el.cameraVideo.srcObject = null;
+      if (el.cameraBox) el.cameraBox.classList.add('hide');
+    }
+
+    async function submitConfirmation() {
+      if (!state.session || state.session.role !== 'Driver' || !state.selectedConfirmId) return;
+      clearText(el.confirmError);
+      const note = el.confirmNote.value.trim();
+      if (state.confirmStatus === 'Gagal' && !note) {
+        setText(el.confirmError, 'Catatan driver wajib diisi jika pengiriman gagal.');
+        return;
+      }
+      if (state.confirmStatus === 'Terkirim' && !state.confirmPhotoRaw) {
+        toast('error', 'Foto wajib', 'Foto bukti wajib untuk konfirmasi terkirim');
+        return;
+      }
+
+      if (!state.confirmGps) {
+        await acquireGps(true);
+      }
+
+      await withSubmitLock('Menyimpan konfirmasi...', async () => {
+        const payload = {
+          action: 'konfirmasiTerima',
+          requesterId: state.session.id,
+          requesterRole: 'Driver',
+          id: state.selectedConfirmId,
+          statusBaru: state.confirmStatus,
+          fotoBase64: state.confirmPhotoRaw || '',
+          latitude: state.confirmGps ? state.confirmGps.latitude : '',
+          longitude: state.confirmGps ? state.confirmGps.longitude : '',
+          catatanDriver: note
+        };
+        const res = await apiCall(payload);
+        if (!res.success) throw new Error(res.message || 'Gagal menyimpan konfirmasi.');
+        toast('success', 'Konfirmasi tersimpan', `Status ${res.statusBaru} untuk ${res.nomorSJ}.`);
+        closeConfirmPanel();
+        await loadDriverShipments();
+        await loadDriverHistory();
+      }, { overlayText: 'Menyimpan konfirmasi...' });
+    }
+
+    function stripDataUrl(dataUrl) {
+      return String(dataUrl || '').replace(/^data:[^;]+;base64,/, '');
+    }
+
+    async function apiCall(payload, opts = {}) {
+      if (!isAppsScriptUrlValid()) {
+        throw new Error('APPS_SCRIPT_URL belum diisi.');
+      }
+      const response = await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        redirect: 'follow',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      });
+      const text = await response.text();
+      let json;
+      try {
+        json = JSON.parse(text);
+      } catch {
+        throw new Error('Respon backend tidak valid.');
+      }
+      if (json && json.message && json.success === false) {
+        return json;
+      }
+      return json;
+    }
+
+    async function withSubmitLock(text, fn, options = {}) {
+      if (state.isSubmitting) return;
+      state.isSubmitting = true;
+      if (options.overlayText) setLoading(options.overlayText);
+      else setLoading(text);
+      showLoading(true);
+      try {
+        return await fn();
+      } catch (err) {
+        if (options.inlineError) options.inlineError(err.message || String(err));
+        else toast('error', 'Gagal', err.message || String(err));
+      } finally {
+        state.isSubmitting = false;
+        showLoading(false);
+      }
+    }
+
+    function showLoading(show) {
+      el.loadingOverlay.classList.toggle('open', show);
+      el.loadingOverlay.setAttribute('aria-hidden', show ? 'false' : 'true');
+    }
+
+    function setLoading(text) {
+      el.loadingText.textContent = text || 'Memuat...';
+    }
+
+    function toast(type, title, message) {
+      const node = document.createElement('div');
+      node.className = `toast ${type || 'info'}`;
+      node.innerHTML = `<div class="t">${escapeHtml(title || '')}</div><div class="m">${escapeHtml(message || '')}</div>`;
+      el.toastWrap.appendChild(node);
+      setTimeout(() => {
+        node.style.opacity = '0';
+        node.style.transform = 'translateY(8px)';
+        setTimeout(() => node.remove(), 180);
+      }, 3400);
+    }
+
+    function clearLoginError() { setText(el.loginError, ''); }
+    function setLoginError(message) { setText(el.loginError, message); }
+    function clearText(node) { if (node) node.textContent = ''; }
+    function setText(node, message) { if (node) node.textContent = message || ''; }
+
+    function formatDisplayDate(value) {
+      if (!value) return '-';
+      const parts = String(value).split('/');
+      if (parts.length === 3) {
+        const day = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10) - 1;
+        const year = parseInt(parts[2], 10);
+        const date = new Date(year, month, day);
+        return new Intl.DateTimeFormat('id-ID', { timeZone: TZ, day: '2-digit', month: 'long', year: 'numeric' }).format(date);
+      }
+      return value;
+    }
+
+    function todayISO() {
+      return new Intl.DateTimeFormat('en-CA', { timeZone: TZ }).format(new Date());
+    }
+
+    function initials(text) {
+      return String(text || '')
+        .split(/\s+/)
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((s) => s[0])
+        .join('')
+        .toUpperCase() || 'SJ';
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function escapeAttr(value) {
+      return escapeHtml(value).replace(/`/g, '&#96;');
+    }
+
+    function openPrintModalClasses(which) {
+      const modal = which === 'preview' ? el.previewModal : el.detailModal;
+      modal.classList.add('printing');
+      setTimeout(() => modal.classList.remove('printing'), 1000);
+    }
+
+    function normalizePreviewImages() {
+      [el.loginLogo, el.sidebarLogo, el.printLogo].forEach((img) => {
+        if (img) {
+          img.removeAttribute('src');
+          img.alt = 'Logo perusahaan';
+        }
+      });
+    }
+
+    async function loadConfigThenRoute() {
+      try {
+        setLoginError('');
+        if (!isAppsScriptUrlValid()) {
+          setConfigFallback();
+          setLoginError('APPS_SCRIPT_URL belum diisi.');
+          toast('error', 'Konfigurasi belum siap', 'Isi APPS_SCRIPT_URL terlebih dahulu.');
+          return;
+        }
+        const res = await apiCall({ action: 'getPengaturan' }, { silent: true });
+        if (res && res.success) {
+          state.config = { ...state.config, ...(res.config || {}) };
+          applyConfig();
+          const saved = getSession();
+          if (saved) {
+            state.session = saved;
+            routeBySession();
+          } else {
+            showLoginView();
+          }
+          state.appReady = true;
+        } else {
+          setLoginError((res && res.message) || 'Gagal memuat konfigurasi.');
+        }
+      } catch (err) {
+        setLoginError(err.message || String(err));
+      }
+    }
+  </script>
+</body>
+</html>
