@@ -519,6 +519,7 @@
 
     @media (max-width: 860px) {
       .app-shell { display: block; }
+      .main { width: 100%; min-width: 0; }
       .sidebar {
         position: fixed;
         inset: 0 auto 0 0;
@@ -538,10 +539,54 @@
       .backdrop.open { display: block; }
       .sidebar.open { transform: translateX(0); }
       .main { margin-left: 0; }
-      .topbar { padding-top: 18px; }
+      .topbar {
+        padding-top: 18px;
+        padding-inline: 14px;
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .topbar > div:first-child { min-width: 0; }
+      .user-chip {
+        width: 100%;
+        justify-content: space-between;
+        white-space: normal;
+      }
       .menu-toggle { display: inline-flex !important; }
-      .grid-2-equal, .grid-3, .grid-4, .summary-grid { grid-template-columns: 1fr; }
-      .section { padding: 18px; }
+      .content { padding-inline: 14px; }
+      .section { padding: 16px; }
+      .grid-2, .grid-2-equal, .grid-3, .grid-4, .summary-grid, .chart-grid {
+        grid-template-columns: 1fr;
+      }
+      .filters,
+      .form-actions,
+      .item-toolbar,
+      .sj-card-head,
+      .driver-card .top,
+      .modal-head,
+      .panel-head,
+      .print-meta,
+      .print-sign,
+      .stepper {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .field { min-width: 0; }
+      .filters .field { flex: 1 1 auto; min-width: 0; width: 100%; }
+      .form-actions > * { width: 100%; }
+      .form-actions .btn,
+      .item-toolbar .btn,
+      .title-row .btn,
+      .panel-head .btn,
+      .modal-head .btn { width: 100%; }
+      .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .items-table .input,
+      .items-table .select { min-width: 0; }
+      .modal { padding: 12px; }
+      .modal-card,
+      .modal-card.narrow { width: 100%; max-height: 94vh; }
+      .print-sheet { width: 100%; padding: 8mm; }
+      .toast-wrap { right: 12px; left: 12px; bottom: 12px; }
+      .toast { min-width: 0; max-width: none; width: 100%; }
     }
 
     @media print {
