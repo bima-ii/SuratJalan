@@ -527,6 +527,15 @@
         z-index: 50;
         height: 100vh;
       }
+      .backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.36);
+        display: none;
+        z-index: 40;
+        transition: opacity .18s ease;
+      }
+      .backdrop.open { display: block; }
       .sidebar.open { transform: translateX(0); }
       .main { margin-left: 0; }
       .topbar { padding-top: 18px; }
@@ -605,6 +614,7 @@
         <div style="margin-top:10px;">Timezone: Asia/Jakarta</div>
       </div>
     </aside>
+    <div id="backdrop" class="backdrop" aria-hidden="true"></div>
 
     <main class="main">
       <div class="topbar">
@@ -946,7 +956,7 @@
     function cacheElements() {
       [
         'loginView','appView','loginLogo','loginCompanyName','loginCompanyDesc','loginId','loginPassword','loginError','loginBtn','reloadConfigBtn',
-        'sidebar','sidebarLogo','sidebarCompanyName','sidebarCompanySub','adminNav','driverNav','logoutBtn','sessionText','menuToggle','userAvatar','userName','userRole',
+        'sidebar','sidebarLogo','sidebarCompanyName','sidebarCompanySub','adminNav','driverNav','logoutBtn','sessionText','menuToggle','backdrop','userAvatar','userName','userRole',
         'pageTitle','pageSubtitle',
         'adminCreateView','adminListView','adminRekapView','driverShipmentsView','driverHistoryView',
         'sjNamaPenerima','sjAlamatTujuan','sjNoHp','sjDriverId','sjKeterangan','itemsBody','addItemBtn','createSjBtn','createSjError','refreshDriversBtn',
@@ -965,7 +975,15 @@
       el.reloadConfigBtn.addEventListener('click', loadConfigThenRoute);
       el.loginPassword.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleLogin(); });
       el.logoutBtn.addEventListener('click', logout);
-      el.menuToggle.addEventListener('click', () => el.sidebar.classList.toggle('open'));
+      el.menuToggle.addEventListener('click', () => {
+        el.sidebar.classList.toggle('open');
+        if (el.backdrop) el.backdrop.classList.toggle('open');
+      });
+
+      if (el.backdrop) el.backdrop.addEventListener('click', () => {
+        el.sidebar.classList.remove('open');
+        el.backdrop.classList.remove('open');
+      });
 
       document.querySelectorAll('.nav-btn[data-view]').forEach((btn) => {
         btn.addEventListener('click', () => switchView(btn.dataset.view));
@@ -1010,6 +1028,7 @@
           closeConfirmPanel();
           stopCamera();
           el.sidebar.classList.remove('open');
+          if (el.backdrop) el.backdrop.classList.remove('open');
         }
       });
       window.addEventListener('resize', () => adjustMobileMenu());
@@ -1157,6 +1176,7 @@
     function adjustMobileMenu() {
       if (window.innerWidth > 860) {
         el.sidebar.classList.remove('open');
+        if (el.backdrop) el.backdrop.classList.remove('open');
       }
     }
 
